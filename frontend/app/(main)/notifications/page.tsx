@@ -7,11 +7,17 @@ import { io } from "socket.io-client";
 const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
 const API_NOTIFICATIONS_URL = `${API_BASE_URL}/api/notifications`;
 
+interface Notification {
+  _id: string;
+  message: string;
+  // add other fields if necessary
+}
+
 const NotificationsPage = () => {
   const { getToken } = useAuth();
   const { user } = useUser();
 
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [selectedEmail, setSelectedEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -43,7 +49,7 @@ const NotificationsPage = () => {
     socket.emit("join", user.id);
 
     //@ts-ignore
-    socket.on("notification", (notification) => {
+    socket.on("notification", (notification: Notification) => {
       setNotifications((prev) => [notification, ...prev]);
     });
 
@@ -108,13 +114,12 @@ const NotificationsPage = () => {
     }
   };
 
-  const deleteNotification = async (id: any) => {
+  const deleteNotification = async (id: string) => {
     try {
       const token = await getToken();
       await axios.delete(`${API_NOTIFICATIONS_URL}/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      //@ts-ignore
       setNotifications((prev) => prev.filter((n) => n._id !== id));
     } catch (error) {
       console.error("Error deleting notification:", error);
@@ -171,7 +176,7 @@ const NotificationsPage = () => {
         <p className="text-gray-400">No notifications</p>
       ) : (
         <ul className="space-y-3">
-          {notifications.map((n: any) => (
+          {notifications.map((n) => (
             <li
               key={n._id}
               className="bg-gray-800 p-3 rounded flex justify-between items-center"

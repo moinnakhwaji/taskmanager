@@ -320,7 +320,7 @@ export default function TaskAssignmentPage() {
         <UpdateTaskModal
           showModal={showModal}
           setShowModal={setShowModal}
-          formData={formData}
+          formData={formData as any}
           handleChange={handleChange}
           handleSubmit={handleSubmit}
           loading={updateLoading}

@@ -1,6 +1,10 @@
 "use client";
-import React from "react";
+import React, { type ReactElement } from "react";
 import { XCircle, Calendar, AlertCircle, CheckCircle, Clock, RefreshCw, Save } from "lucide-react";
+
+// Define the valid types for priority and status
+type Priority = "high" | "medium" | "low";
+type Status = "todo" | "in-progress" | "done";
 
 interface UpdateTaskProps {
   showModal: boolean;
@@ -9,8 +13,8 @@ interface UpdateTaskProps {
     title: string;
     description: string;
     dueDate: string;
-    priority: string;
-    status: string;
+    priority: Priority; // Use the Priority type here
+    status: Status;     // Use the Status type here
     recurring: boolean;
     assignedTo: string;
     createdBy: string;
@@ -33,7 +37,7 @@ const UpdateTaskModal = ({
   if (!showModal) return null;
 
   // Priority configuration with colors and icons
-  const priorityConfig = {
+  const priorityConfig: Record<Priority, { color: string; bg: string; icon: ReactElement }> = {
     high: {
       color: "border-red-600 focus:ring-red-900",
       bg: "bg-red-600/20",
@@ -52,7 +56,7 @@ const UpdateTaskModal = ({
   };
 
   // Status configuration with colors and icons
-  const statusConfig = {
+  const statusConfig: Record<Status, { color: string; bg: string; icon: ReactElement }> = {
     todo: {
       color: "border-blue-600 focus:ring-blue-900",
       bg: "bg-blue-600/20",
@@ -170,6 +174,7 @@ const UpdateTaskModal = ({
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    {/* @ts-ignore */}
                     {priorityConfig[formData.priority]?.icon || <AlertCircle size={18} className="text-gray-400" />}
                   </div>
                   <select
@@ -197,85 +202,59 @@ const UpdateTaskModal = ({
               <label htmlFor="status" className="block text-sm font-medium text-gray-300 mb-1 ml-1">
                 Status
               </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                  {statusConfig[formData.status]?.icon || <Clock size={18} className="text-gray-400" />}
-                </div>
-                <select
-                  id="status"
-                  name="status"
-                  value={formData.status}
-                  onChange={handleChange}
-                  className={`w-full bg-[#09090b] border ${statusConfig[formData?.status]?.color || "border-gray-800"} text-white p-3 pl-10 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition-all appearance-none ${statusConfig[formData.status]?.bg || ""}`}
-                >
-                  <option value="todo">To Do</option>
-                  <option value="in-progress">In Progress</option>
-                  <option value="done">Done</option>
-                </select>
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                  <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                  </svg>
-                </div>
-              </div>
+              <select
+                id="status"
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+                className={`w-full bg-[#09090b] border ${statusConfig[formData.status]?.color || "border-gray-800"} text-white p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900 focus:border-transparent transition-all`}
+              >
+                <option value="todo">To Do</option>
+                <option value="in-progress">In Progress</option>
+                <option value="done">Done</option>
+              </select>
             </div>
-            
+
             {/* Recurring */}
-            <div className="mt-4">
-              <label className="flex items-center space-x-3 cursor-pointer group">
-                <div className="relative">
-                  <input
-                    type="checkbox"
-                    name="recurring"
-                    checked={formData.recurring}
-                    onChange={handleChange}
-                    className="sr-only"
-                  />
-                  <div className={`w-6 h-6 border-2 ${
-                    formData.recurring ? "border-purple-500 bg-purple-900" : "border-gray-600 bg-[#09090b]"
-                  } rounded transition-colors group-hover:border-purple-400`}>
-                    {formData.recurring && (
-                      <svg className="w-full h-full text-purple-400 p-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
-                      </svg>
-                    )}
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 text-gray-300 group-hover:text-white">
-                  <RefreshCw size={18} className={formData.recurring ? "text-purple-400" : "text-gray-400"} />
-                  <span>This is a recurring task</span>
-                </div>
+            <div className="flex items-center space-x-2">
+              <input
+                id="recurring"
+                type="checkbox"
+                name="recurring"
+                checked={formData.recurring}
+                onChange={handleChange}
+                className="w-4 h-4 border border-gray-600 rounded-sm text-blue-500 focus:ring-blue-500"
+              />
+              <label htmlFor="recurring" className="text-sm font-medium text-gray-300">
+                Recurring
               </label>
             </div>
-          </div>
-          
-          {/* Action buttons */}
-          <div className="mt-8 flex gap-3 justify-end">
-            <button
-              type="button"
-              onClick={() => setShowModal(false)}
-              className="px-4 py-2 bg-transparent border border-gray-700 text-gray-300 hover:text-white hover:border-gray-500 rounded-lg transition-colors"
-            >
-              Cancel
-            </button>
-            
-            <button
-              type="submit"
-              className={`px-4 py-2 ${isEditing ? "bg-blue-600 hover:bg-blue-700" : "bg-green-600 hover:bg-green-700"} rounded-lg transition-colors flex items-center gap-2`}
-              disabled={loading}
-            >
-              {loading ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span>Processing...</span>
-                </>
-              ) : (
-                <>
-                  <Save size={18} />
-                  <span>{isEditing ? "Update Task" : "Create Task"}</span>
-                </>
-              )}
-            </button>
+
+            {/* Assigned To */}
+            <div>
+              <label htmlFor="assignedTo" className="block text-sm font-medium text-gray-300 mb-1 ml-1">
+                Assigned To
+              </label>
+              <input
+                id="assignedTo"
+                type="text"
+                name="assignedTo"
+                value={formData.assignedTo}
+                onChange={handleChange}
+                className="w-full bg-[#09090b] border border-gray-800 text-white placeholder-gray-500 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900 focus:border-transparent transition-all"
+              />
+            </div>
+
+            {/* Submit button */}
+            <div className="mt-4">
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-900 transition-all"
+              >
+                {loading ? 'Saving...' : isEditing ? 'Save Changes' : 'Create Task'}
+              </button>
+            </div>
           </div>
         </form>
       </div>
