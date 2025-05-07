@@ -1,10 +1,6 @@
 import express from "express";
-import {
-  createNotification,
-  getAllNotificationsByUserId,
-  updateNotificationById,
-  deleteNotificationById,
-} from "../controllers/notificationController.js";
+import {createNotification,getAllNotificationsByUserId,updateNotificationById,deleteNotificationById}
+ from "../controllers/notificationcontroller.js"
 import { requireAuth } from "@clerk/express";
 
 const router = express.Router();
