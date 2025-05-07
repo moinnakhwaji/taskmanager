@@ -10,8 +10,7 @@ import taskRoutes from "./routes/task.routes.js";
 import notificationRoutes from "./routes/notification.routes.js";
 import auditRoutes from "./routes/audit.routes.js";
 import { rateLimit } from 'express-rate-limit';
-import fetch from "node-fetch";
-global.fetch = fetch;
+
 
 
 dotenv.config();
