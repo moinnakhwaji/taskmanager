@@ -26,7 +26,7 @@ const server = http.createServer(app);
 // Socket.io setup
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000", // Frontend origin
+    origin: "https://taskmanager-taupe-six.vercel.app", // Frontend origin
     credentials: true, // Allow cookies/auth headers
   },
 });
@@ -45,7 +45,7 @@ const limiter = rateLimit({
 app.use(limiter);
 app.use(ClerkExpressWithAuth()); // Clerk authentication middleware
 app.use(cors({
-  origin: "http://localhost:3000", // Frontend URL
+  origin: "https://taskmanager-taupe-six.vercel.app", // Frontend URL
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization"]
