@@ -1,6 +1,4 @@
-import express from 'express'; // Default import for express
-const { Request } = express; // Destructure Request from express
-
+import express from 'express';
 import { ClerkExpressWithAuth } from "@clerk/clerk-sdk-node";
 import dotenv from "dotenv";
 import { dbconnect } from "./db/db.js";
@@ -23,11 +21,32 @@ dbconnect();
 const app = express();
 const server = http.createServer(app);
 
+// Allowed origins
+const allowedOrigins = [
+  "https://taskmanager-taupe-six.vercel.app", // Production frontend
+  "http://localhost:3000",                    // Local dev frontend
+  "http://127.0.0.1:3000"                     // Alternative local dev
+];
+
+// Configure CORS
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
 // Socket.io setup
 const io = new Server(server, {
   cors: {
-    origin: "https://taskmanager-taupe-six.vercel.app", // Frontend origin
-    credentials: true, // Allow cookies/auth headers
+    origin: allowedOrigins,
+    credentials: true,
   },
 });
 
@@ -36,24 +55,17 @@ const PORT = process.env.PORT || 5000;
 // Rate limiting middleware
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  limit: 100, // Allow 100 requests per 15 minutes
-  standardHeaders: 'draft-8', // Provide RateLimit-* headers
-  legacyHeaders: false, // Disable legacy headers
+  limit: 100,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
 });
 
-// Apply rate limit globally
+// Apply middlewares
 app.use(limiter);
-app.use(ClerkExpressWithAuth()); // Clerk authentication middleware
-app.use(cors({
-  origin: "https://taskmanager-taupe-six.vercel.app", // Frontend URL
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  credentials: true,
-  allowedHeaders: ["Content-Type", "Authorization"]
-}));
+app.use(ClerkExpressWithAuth());
+app.use(express.json()); // Body parser
 
-app.use(express.json()); // JSON parser middleware
-
-// Route handlers
+// API Routes
 app.use("/api/users", userRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/notifications", notificationRoutes);
@@ -68,11 +80,12 @@ io.on("connection", (socket) => {
   });
 });
 
+// Root route
 app.get("/", (req, res) => {
   res.send("Hello World");
 });
 
-// Start the server
+// Start server
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
