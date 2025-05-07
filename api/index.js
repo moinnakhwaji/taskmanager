@@ -12,7 +12,7 @@ import auditRoutes from "./routes/audit.routes.js";
 import { rateLimit } from 'express-rate-limit';
 
 
-
+globalThis.fetch = fetch;
 dotenv.config();
 dbconnect();
 
