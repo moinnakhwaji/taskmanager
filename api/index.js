@@ -1,4 +1,6 @@
-import express from "express";
+import express from 'express'; // Default import for express
+const { Request } = express; // Destructure Request from express
+
 import { ClerkExpressWithAuth } from "@clerk/clerk-sdk-node";
 import dotenv from "dotenv";
 import { dbconnect } from "./db/db.js";
@@ -10,9 +12,11 @@ import taskRoutes from "./routes/task.routes.js";
 import notificationRoutes from "./routes/notification.routes.js";
 import auditRoutes from "./routes/audit.routes.js";
 import { rateLimit } from 'express-rate-limit';
+import fetch from 'node-fetch';
 
-
+// Ensure global fetch is defined
 globalThis.fetch = fetch;
+
 dotenv.config();
 dbconnect();
 
@@ -21,11 +25,11 @@ const server = http.createServer(app);
 
 // Socket.io setup
 const io = new Server(server, {
-   cors: {
+  cors: {
     origin: "http://localhost:3000", // Frontend origin
     credentials: true, // Allow cookies/auth headers
-  }, } // Allow all origins for Socket.IO. In production, change this.
-);
+  },
+});
 
 const PORT = process.env.PORT || 5000;
 
@@ -38,7 +42,7 @@ const limiter = rateLimit({
 });
 
 // Apply rate limit globally
-// app.use(limiter);
+app.use(limiter);
 app.use(ClerkExpressWithAuth()); // Clerk authentication middleware
 app.use(cors({
   origin: "http://localhost:3000", // Frontend URL
@@ -50,10 +54,10 @@ app.use(cors({
 app.use(express.json()); // JSON parser middleware
 
 // Route handlers
-app.use("/api/users", limiter, userRoutes);
-app.use("/api/tasks", limiter, taskRoutes);
-app.use("/api/notifications", limiter, notificationRoutes);
-app.use("/api/audit", limiter, auditRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/tasks", taskRoutes);
+app.use("/api/notifications", notificationRoutes);
+app.use("/api/audit", auditRoutes);
 
 // Socket.IO event handling
 io.on("connection", (socket) => {
