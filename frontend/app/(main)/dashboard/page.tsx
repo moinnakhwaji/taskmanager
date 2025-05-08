@@ -12,6 +12,7 @@ import {
   PlusCircle,
   Info,
 } from "lucide-react";
+import Link from "next/link";
 
 const DashboardPage = () => {
   const { user } = useUser();
@@ -121,9 +122,11 @@ const DashboardPage = () => {
             <PlusCircle size={36} className="text-[#6556cd]" />
             <h2 className="text-lg font-semibold">Create a New Task</h2>
             <p className="text-gray-400">Start organizing your work by adding a task now.</p>
+            <Link href="/create-task">
             <button className="mt-2 px-4 py-2 bg-[#6556cd] text-white rounded-md hover:bg-[#7a6df1] transition">
               + New Task
             </button>
+            </Link>
           </CardContent>
         </Card>
       </div>
