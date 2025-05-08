@@ -13,7 +13,7 @@ A simple and efficient task management system built with **Next.js**, **Express*
 
 ## 📸 Screenshot
 
-![Screenshot](https://raw.githubusercontent.com/moinnakhwaji/taskmanager/main/public/screenshot.png)
+![Screenshot](file:///C:/Users/Saad%20Nakhwaji/Pictures/Screenshots/Screenshot%202025-05-08%20073104.png)
 
 ---
 
